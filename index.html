@@ -1,151 +1,409 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-	<title>Scooter Fix - Reparación de Patinetes Eléctricos en Sevilla</title>
-	<meta name="description" content="¡Reparación de Patinetes Eléctricos en Sevilla con Scooter Fix! Especialistas en mantenimiento y reparación de patinetes. ¡Llámanos o contáctanos!" />
-	
-	<!-- Fuentes externas -->
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
-	
-	<!-- Hojas de estilo esenciales -->
-	<link rel='stylesheet' id='js_composer_front-css' href='https://tallerdelpatinete.es/wp-content/plugins/js_composer/assets/css/js_composer.min.css?ver=9.0.1' media='all' />
-	<link rel='stylesheet' id='etheme-parent-style-css' href='https://tallerdelpatinete.es/wp-content/themes/xstore/xstore.css?ver=7.0.4' media='all' />
-	<link rel='stylesheet' id='child-style-css' href='https://tallerdelpatinete.es/wp-content/themes/xstore-child/style.css?ver=7.0.4' media='all' />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scooter Fix - Taller de Reparación de Patinetes Eléctricos en Sevilla</title>
+  <meta name="description" content="Especialistas en reparación, mantenimiento y cambio de baterías para patinetes eléctricos en Sevilla. Servicio técnico rápido y garantizado en Scooter Fix." />
+  
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --accent-blue: #0284c7;
+      --accent-cyan: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
 
-	<style>
-		/* Estilos base y resets */
-		.type-product,.content{ul{margin-bottom:1.43em}li{margin-bottom:.5em;line-height:1.8;font-size:1.14rem}ul,ol{padding-left:20px}}
-		h1{margin:0 0 .67em 0;font-size:calc(var(--h1-size-proportion, 2) * 1rem);line-height:var(--h1-line-height, 1.2);font-weight:400;margin-bottom:.5rem;color:var(--et_dark-2-white, #333)}
-		p{margin-bottom:1.43rem;line-height:var(--p-line-height,1.6);font-size:var(--p-font-size,1.14rem)}
-		body { margin: 0; font-family: 'Oxanium', sans-serif; background-color: #fff; color: #333; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-		/* Header & Top Bar Custom Styles */
-		.header-top, .footer, a.et_element.et_b_header-button.inline-block.pos-relative {
-			background: linear-gradient(to right, #e9ff01, #ccff01, #adff00, #86ff01, #5dff00) !important;
-		}
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
 
-		/* Botones CTA personalizados */
-		.cta-btn {
-		  display: inline-block;
-		  padding: 14px 28px;
-		  border-radius: 50px;
-		  background: linear-gradient(135deg, #00c853, #00e676);
-		  color: #fff !important;
-		  font-weight: bold;
-		  text-decoration: none !important;
-		  box-shadow: 0 10px 25px rgba(0,200,83,0.4);
-		  transition: all 0.3s ease;
-		}
-		.cta-btn:hover {
-		  transform: translateY(-3px);
-		  box-shadow: 0 15px 30px rgba(0,200,83,0.6);
-		}
+    /* Header Sticky */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 2px solid var(--accent-blue);
+      padding: 15px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
 
-		/* Ajustes Grid Productos */
-		.woocommerce .products-loop.products-grid,
-		.woocommerce .products-grid.row {
-		  display: grid !important;
-		  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-		  gap: 28px 20px !important;
-		}
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-		@media (max-width: 767px) {
-		  .woocommerce .products-loop.products-grid,
-		  .woocommerce .products-grid.row {
-			grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-			gap: 18px 10px !important;
-		  }
-		}
-	</style>
+    header img {
+      max-height: 55px;
+      width: auto;
+      border-radius: 6px;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 20px;
+    }
+
+    nav a {
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--accent-cyan);
+    }
+
+    /* Layout Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 50px;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      color: var(--accent-cyan);
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      max-width: 700px;
+      margin: 0 auto 30px;
+    }
+
+    /* Títulos de Sección */
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--accent-cyan);
+      margin: 60px 0 30px;
+    }
+
+    /* Grid de Servicios */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 30px;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      background-color: var(--bg-card-hover);
+    }
+
+    .card h3 {
+      color: var(--accent-cyan);
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    .card ul {
+      list-style-type: none;
+      margin-bottom: 20px;
+    }
+
+    .card ul li {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .card ul li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent-cyan);
+    }
+
+    /* Botones */
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      color: #ffffff;
+      padding: 12px 28px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Tabla de Tarifas */
+    .table-container {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: rgba(2, 132, 199, 0.2);
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Formulario de Contacto */
+    .contact-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 40px;
+      margin-top: 50px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 1rem;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      outline: 1px solid var(--accent-cyan);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      margin-top: 80px;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .hero h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
 </head>
-<body class="page-template-default page wp-theme-xstore woocommerce-no-js">
+<body>
 
-<div class="template-container">
-	<div class="template-content">
-		<div class="page-wrapper">
-			<!-- ENCABEZADO / HEADER -->
-			<header id="header" class="site-header sticky" data-type="sticky">
-				<div class="header-wrapper">
-					<div class="header-main-wrapper sticky">
-						<div class="header-main">
-							<div class="et-row-container et-container">
-								<div class="et-wrap-columns flex align-items-center" style="display: flex; justify-content: space-between; padding: 15px 0;">		
-									<div class="et_column">
-										<a href="#">
-											<!-- Imagen apuntando al archivo logoscooter.jpg subido en la raíz -->
-											<img width="180" src="logoscooter.jpg" alt="Scooter Fix" style="max-height: 80px; object-fit: contain;" />
-										</a>
-									</div>
-									<div class="et_column">
-										<a href="https://wa.link/nyzpve" class="cta-btn" target="_blank">Contactar por WhatsApp</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</header>
+  <header>
+    <div class="logo-container">
+      <a href="#">
+        <img src="logoscooter.jpeg" alt="Scooter Fix Logo" />
+      </a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#tarifas">Tarifas</a></li>
+        <li><a href="#contacto">Pedir Cita</a></li>
+      </ul>
+    </nav>
+  </header>
 
-			<!-- CONTENIDO PRINCIPAL DE LA PÁGINA -->
-			<div class="container content-page">
-				<div class="row">
-					<div class="content col-md-12">
-						<div class="wpb-content-wrapper">
-							
-							<!-- Sección Título Principal -->
-							<section style="padding: 40px 0; background-color: #f4f4f4; text-align: center;">
-								<h1 style="font-size: 35px; color: #333;">Scooter Fix - Taller de Reparación de Patinetes Eléctricos en Sevilla</h1>
-								<p>Servicio Técnico de Patinetes Eléctricos en Sevilla. Si tienes que <strong>reparar tu patín eléctrico</strong> en Sevilla tenemos la solución.<br>¡Pide tu cita online!</p>
-							</section>
+  <main class="container">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1>Scooter Fix: Taller de Reparación de Patinetes Eléctricos en Sevilla</h1>
+      <p>Diagnóstico electrónico, reparación de baterías, cambio de ruedas macizas o con cámara y ajuste de frenos. En Scooter Fix dejamos tu patín listo con garantía directa.</p>
+      <a href="#contacto" class="btn">Solicitar Diagnóstico</a>
+    </section>
 
-							<!-- Sección Reparar Patinete -->
-							<section style="padding: 40px 0; text-align: center;">
-								<h2 style="font-size: 30px; color: #000;">Reparar Patinete en Sevilla</h2>
-								<p>En nuestro taller de patinete eléctrico, encontrarás todo tipo de recambios, accesorios y patinetes que te imagines.<br>¡Ven a visitarnos!</p>
-							</section>
+    <!-- Servicios -->
+    <h2 id="servicios" class="section-title">Servicios Scooter Fix</h2>
+    <section class="grid">
+      <div class="card">
+        <h3>Mecánica & Neumáticos</h3>
+        <p>Soluciones para pinchazos y desgastes mecánicos en todas las marcas principales.</p>
+        <ul>
+          <li>Montaje de ruedas macizas antipinchazos</li>
+          <li>Cambio de cámaras y neumáticos reforzados</li>
+          <li>Ajuste y sustitución de discos/pastillas de freno</li>
+          <li>Eliminación de holguras en mástil y sistema de plegado</li>
+        </ul>
+      </div>
 
-							<!-- Sección Servicios Destacados -->
-							<section style="padding: 40px 0; background-color: #fafafa;">
-								<h3 style="font-size: 28px; text-align: center; margin-bottom: 30px;">Reparaciones Destacadas</h3>
-								<div style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px; text-align: center;">
-									<div style="flex: 1; min-width: 200px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-										<h4>Sustitución de Ruedas</h4>
-										<p>Reemplazo de cámara interior o neumáticos por pinchazos.</p>
-									</div>
-									<div style="flex: 1; min-width: 200px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-										<h4>Ruedas Macizas</h4>
-										<p>Instalación de ruedas macizas antipinchazos de 8,5 y 10 pulgadas.</p>
-									</div>
-									<div style="flex: 1; min-width: 200px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-										<h4>Mantenimiento de Frenos</h4>
-										<p>Ajuste, reparación o sustitución de sistemas de frenado.</p>
-									</div>
-									<div style="flex: 1; min-width: 200px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-										<h4>Reparación de Batería</h4>
-										<p>Diagnóstico y sustitución de celdas o baterías completas.</p>
-									</div>
-								</div>
-							</section>
+      <div class="card">
+        <h3>Electrónica & Baterías</h3>
+        <p>Reparación avanzada de componentes internos y gestión energética.</p>
+        <ul>
+          <li>Reparación y comprobación de placas BMS</li>
+          <li>Sustitución de controladoras quemadas</li>
+          <li>Reparación de pantalla / display y acelerador</li>
+          <li>Solución de códigos de error de fabricante</li>
+        </ul>
+      </div>
 
-						</div>
-					</div>
-				</div>
-			</div>
+      <div class="card">
+        <h3>Mantenimiento Preventivo</h3>
+        <p>Asegura la vida útil de tu patinete antes de sufrir una avería grave.</p>
+        <ul>
+          <li>Revisión general de seguridad (20 puntos)</li>
+          <li>Ajuste de tornillería y chasis</li>
+          <li>Sellado y estanqueidad contra humedad</li>
+          <li>Calibrado de respuesta de motor</li>
+        </ul>
+      </div>
+    </section>
 
-			<!-- PIE DE PÁGINA / FOOTER -->
-			<footer class="footer text-color-dark" style="background-color: #1d7c39; color: #fff; padding: 30px 0; margin-top: 40px;">
-				<div class="container" style="text-align: center;">
-					<p style="color: #fff;">&copy; Scooter Fix - Tu taller de patinetes eléctricos de confianza en Sevilla</p>
-				</div>
-			</footer>
+    <!-- Tabla de Tarifas -->
+    <h2 id="tarifas" class="section-title">Tarifas Orientativas</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Servicio / Reparación</th>
+            <th>Tiempo Estimado</th>
+            <th>Precio Base</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Cambio de cámara de aire (Rueda delantera/trasera)</td>
+            <td>24 Horas</td>
+            <td>Desde 15 €</td>
+          </tr>
+          <tr>
+            <td>Instalación de rueda maciza antipinchazos</td>
+            <td>24 Horas</td>
+            <td>Desde 25 €</td>
+          </tr>
+          <tr>
+            <td>Ajuste de frenos y cambio de pastillas</td>
+            <td>Mismo día</td>
+            <td>Desde 12 €</td>
+          </tr>
+          <tr>
+            <td>Diagnóstico electrónico y lectura de errores</td>
+            <td>1 - 2 días</td>
+            <td>15 € (Gratis si se repara)</td>
+          </tr>
+          <tr>
+            <td>Reparación de controladora / Electrónica base</td>
+            <td>2 - 4 días</td>
+            <td>Desde 35 €</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-		</div>
-	</div>
-</div>
+    <!-- Formulario de Contacto -->
+    <h2 id="contacto" class="section-title">Solicita tu Cita en Scooter Fix</h2>
+    <section class="contact-section">
+      <form action="#" method="post" onsubmit="event.preventDefault(); alert('Gracias por contactar con Scooter Fix. Nos pondremos en contacto contigo a la brevedad.');">
+        <div class="form-group">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono de contacto</label>
+          <input type="tel" id="telefono" name="telefono" placeholder="Ej: 600000000" required>
+        </div>
+
+        <div class="form-group">
+          <label for="modelo">Marca y Modelo del Patinete</label>
+          <input type="text" id="modelo" name="modelo" placeholder="Ej: Xiaomi Pro 2, Cecotec Bongo, Smartgyro..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="averia">Describe el problema o avería</label>
+          <textarea id="averia" name="averia" rows="4" placeholder="Ej: He pinchado la rueda trasera / El patinete no enciende..."></textarea>
+        </div>
+
+        <button type="submit" class="btn">Enviar Solicitud a Scooter Fix</button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>&copy; Scooter Fix - Sevilla. Todos los derechos reservados.</p>
+  </footer>
 
 </body>
 </html>
