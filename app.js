@@ -1,535 +1,333 @@
 /* =========================================================
-   SCOOTER FIX — app.js
-   Módulos: Productos, Carrito, Calculadora, Drawer/Modal, Formularios
+   SCOOTER FIX - app.js
+   Interacciones robustas, accesibles y persistentes
    ========================================================= */
-
-(function () {
+(() => {
   'use strict';
 
-  /* =========================================================
-     0. DATOS DE PRODUCTOS
-     ========================================================= */
-  const PRODUCTS = [
-    {
-      id: 'rueda-maciza-85',
-      name: 'Rueda Maciza Antipinchazos 8.5" (Xiaomi/Smartgyro)',
-      category: 'neumaticos',
-      categoryLabel: 'Neumáticos',
-      price: 25,
-      icon: '🛞',
-      desc: 'Rueda maciza reforzada, sin cámara. Compatible con la mayoría de modelos 8.5".'
-    },
-    {
-      id: 'camara-10',
-      name: 'Cámara de Aire Reforzada 10"',
-      category: 'neumaticos',
-      categoryLabel: 'Neumáticos',
-      price: 15,
-      icon: '⭕',
-      desc: 'Cámara de repuesto de alta resistencia para ruedas de 10 pulgadas.'
-    },
-    {
-      id: 'bateria-36v',
-      name: 'Batería de Sustitución 36V 7.8Ah',
-      category: 'electronica',
-      categoryLabel: 'Electrónica',
-      price: 120,
-      icon: '🔋',
-      desc: 'Batería de iones de litio con protección BMS integrada. Alta durabilidad.'
-    },
-    {
-      id: 'pastillas-freno',
-      name: 'Juego de Pastillas de Freno Cerámicas',
-      category: 'frenos',
-      categoryLabel: 'Frenos',
-      price: 12,
-      icon: '🛑',
-      desc: 'Pastillas cerámicas de bajo desgaste, frenada silenciosa y progresiva.'
-    },
-    {
-      id: 'controladora-350w',
-      name: 'Controladora Multimarca 350W',
-      category: 'electronica',
-      categoryLabel: 'Electrónica',
-      price: 45,
-      icon: '⚙️',
-      desc: 'Controladora universal compatible con motores de hasta 350W.'
-    },
-    {
-      id: 'display-led',
-      name: 'Pantalla Display LED con Acelerador',
-      category: 'electronica',
-      categoryLabel: 'Electrónica',
-      price: 35,
-      icon: '📟',
-      desc: 'Display LED con indicador de batería y acelerador de pulgar incluido.'
-    }
-  ];
+  const PRODUCTS = Object.freeze([
+    { id: 'rueda-maciza-85', name: 'Rueda Maciza Antipinchazos 8.5" (Xiaomi/Smartgyro)', category: 'neumaticos', categoryLabel: 'Neumáticos', price: 25, icon: '🛞', desc: 'Rueda maciza reforzada, sin cámara. Compatible con la mayoría de modelos 8.5".' },
+    { id: 'camara-10', name: 'Cámara de Aire Reforzada 10"', category: 'neumaticos', categoryLabel: 'Neumáticos', price: 15, icon: '⭕', desc: 'Cámara de repuesto de alta resistencia para ruedas de 10 pulgadas.' },
+    { id: 'bateria-36v', name: 'Batería de Sustitución 36V 7.8Ah', category: 'electronica', categoryLabel: 'Electrónica', price: 120, icon: '🔋', desc: 'Batería de iones de litio con protección BMS integrada. Alta durabilidad.' },
+    { id: 'pastillas-freno', name: 'Juego de Pastillas de Freno Cerámicas', category: 'frenos', categoryLabel: 'Frenos', price: 12, icon: '🛑', desc: 'Pastillas cerámicas de bajo desgaste, frenada silenciosa y progresiva.' },
+    { id: 'controladora-350w', name: 'Controladora Multimarca 350W', category: 'electronica', categoryLabel: 'Electrónica', price: 45, icon: '⚙️', desc: 'Controladora universal compatible con motores de hasta 350W.' },
+    { id: 'display-led', name: 'Pantalla Display LED con Acelerador', category: 'electronica', categoryLabel: 'Electrónica', price: 35, icon: '📟', desc: 'Display LED con indicador de batería y acelerador de pulgar incluido.' }
+  ]);
 
-  /* =========================================================
-     1. UTILIDADES
-     ========================================================= */
-  const $ = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  const $ = (selector, context = document) => context.querySelector(selector);
+  const $$ = (selector, context = document) => Array.from(context.querySelectorAll(selector));
+  const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+  const formatPrice = value => priceFormatter.format(Number(value) || 0);
+  const escapeHTML = value => String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
-  const formatPrice = (value) =>
-    value.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-
-  let toastTimer = null;
+  let toastTimer;
   function showToast(message) {
     const toast = $('#toast');
     if (!toast) return;
     toast.textContent = message;
     toast.classList.add('is-visible');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2800);
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 2800);
   }
 
-  /* =========================================================
-     2. MÓDULO: TIENDA (render + filtros)
-     ========================================================= */
+  const FocusManager = {
+    previous: null,
+    open(container) {
+      this.previous = document.activeElement;
+      requestAnimationFrame(() => container?.focus());
+    },
+    close() {
+      if (this.previous instanceof HTMLElement && document.contains(this.previous)) this.previous.focus();
+      this.previous = null;
+    },
+    trap(event, container) {
+      if (event.key !== 'Tab' || !container) return;
+      const focusable = $$('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])', container)
+        .filter(element => !element.hidden && element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  };
+
+  function syncBodyLock() {
+    const locked = $('#cartDrawer')?.classList.contains('is-open') || $('#authOverlay')?.classList.contains('is-active');
+    document.body.classList.toggle('is-locked', Boolean(locked));
+  }
+
   const Shop = {
     grid: null,
-
     init() {
       this.grid = $('#productsGrid');
       if (!this.grid) return;
       this.render(PRODUCTS);
-      this.bindFilters();
+      $('#shopFilters')?.addEventListener('click', event => this.filter(event));
+      this.grid.addEventListener('click', event => this.add(event));
     },
-
     render(products) {
-      this.grid.innerHTML = products.map((p) => `
-        <article class="product-card" data-category="${p.category}" data-id="${p.id}">
-          <div class="product-media" aria-hidden="true">${p.icon}</div>
+      this.grid.innerHTML = products.map(product => `
+        <article class="product-card" data-category="${escapeHTML(product.category)}" data-id="${escapeHTML(product.id)}">
+          <div class="product-media" aria-hidden="true">${escapeHTML(product.icon)}</div>
           <div class="product-body">
-            <span class="product-cat">${p.categoryLabel}</span>
-            <h3>${p.name}</h3>
-            <p>${p.desc}</p>
+            <span class="product-cat">${escapeHTML(product.categoryLabel)}</span>
+            <h3>${escapeHTML(product.name)}</h3>
+            <p>${escapeHTML(product.desc)}</p>
             <div class="product-footer">
-              <span class="product-price">${formatPrice(p.price)}</span>
-              <button class="add-to-cart" data-id="${p.id}">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Añadir
+              <span class="product-price">${formatPrice(product.price)}</span>
+              <button type="button" class="add-to-cart" data-id="${escapeHTML(product.id)}" aria-label="Añadir ${escapeHTML(product.name)} al carrito">
+                <span aria-hidden="true">+</span> Añadir
               </button>
             </div>
           </div>
-        </article>
-      `).join('');
-
-      $$('.add-to-cart', this.grid).forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const product = PRODUCTS.find((p) => p.id === btn.dataset.id);
-          if (!product) return;
-          Cart.addItem(product);
-
-          btn.classList.add('is-added');
-          const original = btn.innerHTML;
-          btn.innerHTML = '✓ Añadido';
-          setTimeout(() => {
-            btn.classList.remove('is-added');
-            btn.innerHTML = original;
-          }, 1100);
-        });
+        </article>`).join('');
+    },
+    filter(event) {
+      const chip = event.target.closest('.filter-chip');
+      if (!chip) return;
+      $$('.filter-chip', event.currentTarget).forEach(item => {
+        const active = item === chip;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-selected', String(active));
+        item.tabIndex = active ? 0 : -1;
+      });
+      $$('.product-card', this.grid).forEach(card => {
+        card.hidden = chip.dataset.filter !== 'todos' && card.dataset.category !== chip.dataset.filter;
       });
     },
-
-    bindFilters() {
-      const chips = $$('.filter-chip');
-      chips.forEach((chip) => {
-        chip.addEventListener('click', () => {
-          chips.forEach((c) => { c.classList.remove('is-active'); c.setAttribute('aria-selected', 'false'); });
-          chip.classList.add('is-active');
-          chip.setAttribute('aria-selected', 'true');
-
-          const filter = chip.dataset.filter;
-          $$('.product-card', this.grid).forEach((card) => {
-            const match = filter === 'todos' || card.dataset.category === filter;
-            card.hidden = !match;
-          });
-        });
-      });
+    add(event) {
+      const button = event.target.closest('.add-to-cart');
+      if (!button) return;
+      const product = PRODUCTS.find(item => item.id === button.dataset.id);
+      if (!product) return;
+      Cart.add(product);
+      button.classList.add('is-added');
+      button.textContent = '✓ Añadido';
+      window.setTimeout(() => { button.classList.remove('is-added'); button.innerHTML = '<span aria-hidden="true">+</span> Añadir'; }, 1000);
     }
   };
 
-  /* =========================================================
-     3. MÓDULO: CARRITO (estado + localStorage + UI)
-     ========================================================= */
   const Cart = {
-    STORAGE_KEY: 'scooterfix_cart',
+    key: 'scooterfix_cart_v2',
     items: [],
-
     init() {
-      this.load();
+      this.items = this.load();
       this.render();
-      this.bindEvents();
+      $('#cartItemsList')?.addEventListener('click', event => this.handleListClick(event));
+      $('#clearCartBtn')?.addEventListener('click', () => this.clear());
+      $('#checkoutBtn')?.addEventListener('click', () => this.checkout());
+      $('#cartTrigger')?.addEventListener('click', () => this.open());
+      $('#closeCart')?.addEventListener('click', () => this.close());
+      $('#drawerOverlay')?.addEventListener('click', () => this.close());
     },
-
     load() {
       try {
-        const raw = localStorage.getItem(this.STORAGE_KEY);
-        this.items = raw ? JSON.parse(raw) : [];
-      } catch (e) {
-        this.items = [];
+        const parsed = JSON.parse(localStorage.getItem(this.key) || '[]');
+        if (!Array.isArray(parsed)) return [];
+        return parsed.reduce((valid, saved) => {
+          const product = PRODUCTS.find(item => item.id === saved?.id);
+          const quantity = Math.min(99, Math.max(1, Number.parseInt(saved?.qty, 10) || 1));
+          if (product) valid.push({ id: product.id, qty: quantity });
+          return valid;
+        }, []);
+      } catch (error) {
+        console.warn('No se pudo recuperar el carrito.', error);
+        return [];
       }
     },
-
     save() {
-      try {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.items));
-      } catch (e) { /* almacenamiento no disponible: se continúa sin persistencia */ }
+      try { localStorage.setItem(this.key, JSON.stringify(this.items)); }
+      catch (error) { console.warn('No se pudo guardar el carrito.', error); showToast('El carrito funciona, pero no puede guardarse en este navegador.'); }
     },
-
-    addItem(product) {
-      const existing = this.items.find((i) => i.id === product.id);
-      if (existing) {
-        existing.qty += 1;
-      } else {
-        this.items.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          icon: product.icon,
-          qty: 1
-        });
-      }
-      this.save();
-      this.render();
-      this.openDrawer();
+    detail(item) {
+      const product = PRODUCTS.find(productItem => productItem.id === item.id);
+      return product ? { ...product, qty: item.qty } : null;
+    },
+    add(product) {
+      const existing = this.items.find(item => item.id === product.id);
+      if (existing) existing.qty = Math.min(99, existing.qty + 1);
+      else this.items.push({ id: product.id, qty: 1 });
+      this.commit();
+      this.open();
       showToast(`${product.name.split('(')[0].trim()} añadido al carrito`);
     },
-
-    updateQty(id, delta) {
-      const item = this.items.find((i) => i.id === id);
+    update(id, delta) {
+      const item = this.items.find(entry => entry.id === id);
       if (!item) return;
-      item.qty += delta;
-      if (item.qty <= 0) {
-        this.items = this.items.filter((i) => i.id !== id);
-      }
-      this.save();
-      this.render();
+      item.qty = Math.min(99, item.qty + delta);
+      if (item.qty <= 0) this.items = this.items.filter(entry => entry.id !== id);
+      this.commit();
     },
-
-    removeItem(id) {
-      this.items = this.items.filter((i) => i.id !== id);
-      this.save();
-      this.render();
-    },
-
+    remove(id) { this.items = this.items.filter(item => item.id !== id); this.commit(); },
     clear() {
+      if (!this.items.length) return;
       this.items = [];
-      this.save();
-      this.render();
+      this.commit();
+      showToast('Carrito vaciado');
     },
-
-    getSubtotal() {
-      return this.items.reduce((sum, i) => sum + i.price * i.qty, 0);
-    },
-
-    getCount() {
-      return this.items.reduce((sum, i) => sum + i.qty, 0);
-    },
-
+    commit() { this.save(); this.render(); },
+    count() { return this.items.reduce((sum, item) => sum + item.qty, 0); },
+    total() { return this.items.reduce((sum, item) => { const product = PRODUCTS.find(entry => entry.id === item.id); return sum + (product ? product.price * item.qty : 0); }, 0); },
     render() {
-      const countEl = $('#cartCount');
-      const emptyEl = $('#cartEmpty');
-      const listEl = $('#cartItemsList');
-      const subtotalEl = $('#cartSubtotal');
-      const totalEl = $('#cartTotal');
-
-      const count = this.getCount();
-      if (countEl) {
-        countEl.textContent = count;
-        countEl.classList.add('is-bump');
-        setTimeout(() => countEl.classList.remove('is-bump'), 350);
-      }
-
-      if (!listEl) return;
-
-      if (this.items.length === 0) {
-        emptyEl.hidden = false;
-        listEl.innerHTML = '';
-      } else {
-        emptyEl.hidden = true;
-        listEl.innerHTML = this.items.map((item) => `
-          <li class="cart-item" data-id="${item.id}">
-            <div class="cart-item-media" aria-hidden="true">${item.icon}</div>
-            <div class="cart-item-info">
-              <h4>${item.name}</h4>
-              <span class="cart-item-price">${formatPrice(item.price)} / ud.</span>
-              <div class="cart-item-qty">
-                <button class="qty-btn" data-action="dec" aria-label="Disminuir cantidad">−</button>
-                <span class="qty-value">${item.qty}</span>
-                <button class="qty-btn" data-action="inc" aria-label="Aumentar cantidad">+</button>
-              </div>
+      const list = $('#cartItemsList');
+      if (!list) return;
+      const detailed = this.items.map(item => this.detail(item)).filter(Boolean);
+      list.innerHTML = detailed.map(item => `
+        <li class="cart-item" data-id="${escapeHTML(item.id)}">
+          <div class="cart-item-media" aria-hidden="true">${escapeHTML(item.icon)}</div>
+          <div class="cart-item-info">
+            <h4>${escapeHTML(item.name)}</h4>
+            <span class="cart-item-price">${formatPrice(item.price)} / ud.</span>
+            <div class="cart-item-qty" aria-label="Cantidad">
+              <button type="button" class="qty-btn" data-action="dec" aria-label="Restar una unidad">−</button>
+              <span class="qty-value" aria-live="polite">${item.qty}</span>
+              <button type="button" class="qty-btn" data-action="inc" aria-label="Sumar una unidad" ${item.qty >= 99 ? 'disabled' : ''}>+</button>
             </div>
-            <div class="cart-item-actions">
-              <span class="cart-item-total">${formatPrice(item.price * item.qty)}</span>
-              <button class="remove-item" data-action="remove">Eliminar</button>
-            </div>
-          </li>
-        `).join('');
-      }
-
-      const subtotal = this.getSubtotal();
-      if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
-      if (totalEl) totalEl.textContent = formatPrice(subtotal);
+          </div>
+          <div class="cart-item-actions">
+            <span class="cart-item-total">${formatPrice(item.price * item.qty)}</span>
+            <button type="button" class="remove-item" data-action="remove">Eliminar</button>
+          </div>
+        </li>`).join('');
+      const count = this.count();
+      const countElement = $('#cartCount');
+      if (countElement) { countElement.textContent = String(count); countElement.hidden = count === 0; }
+      const empty = $('#cartEmpty');
+      if (empty) empty.hidden = detailed.length > 0;
+      const total = formatPrice(this.total());
+      if ($('#cartSubtotal')) $('#cartSubtotal').textContent = total;
+      if ($('#cartTotal')) $('#cartTotal').textContent = total;
+      if ($('#checkoutBtn')) $('#checkoutBtn').disabled = detailed.length === 0;
+      if ($('#clearCartBtn')) $('#clearCartBtn').disabled = detailed.length === 0;
     },
-
-    bindEvents() {
-      const listEl = $('#cartItemsList');
-      if (listEl) {
-        listEl.addEventListener('click', (e) => {
-          const btn = e.target.closest('button');
-          if (!btn) return;
-          const li = e.target.closest('.cart-item');
-          const id = li.dataset.id;
-          const action = btn.dataset.action;
-
-          if (action === 'inc') this.updateQty(id, 1);
-          if (action === 'dec') this.updateQty(id, -1);
-          if (action === 'remove') this.removeItem(id);
-        });
-      }
-
-      const clearBtn = $('#clearCartBtn');
-      if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-          if (this.items.length === 0) return;
-          this.clear();
-          showToast('Carrito vaciado');
-        });
-      }
-
-      const checkoutBtn = $('#checkoutBtn');
-      if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', () => {
-          if (this.items.length === 0) {
-            showToast('Tu carrito está vacío');
-            return;
-          }
-          const total = formatPrice(this.getSubtotal());
-          this.clear();
-          this.closeDrawer();
-          showToast(`¡Compra simulada con éxito! Total: ${total}`);
-        });
-      }
+    handleListClick(event) {
+      const button = event.target.closest('button[data-action]');
+      const item = event.target.closest('.cart-item');
+      if (!button || !item) return;
+      if (button.dataset.action === 'inc') this.update(item.dataset.id, 1);
+      if (button.dataset.action === 'dec') this.update(item.dataset.id, -1);
+      if (button.dataset.action === 'remove') this.remove(item.dataset.id);
     },
-
-    openDrawer() {
-      $('#cartDrawer').classList.add('is-open');
-      $('#cartDrawer').setAttribute('aria-hidden', 'false');
-      $('#drawerOverlay').classList.add('is-active');
-      document.body.style.overflow = 'hidden';
+    open() {
+      const drawer = $('#cartDrawer'); const overlay = $('#drawerOverlay');
+      if (!drawer || !overlay) return;
+      overlay.hidden = false;
+      requestAnimationFrame(() => { drawer.classList.add('is-open'); overlay.classList.add('is-active'); });
+      drawer.setAttribute('aria-hidden', 'false');
+      syncBodyLock(); FocusManager.open(drawer);
     },
-
-    closeDrawer() {
-      $('#cartDrawer').classList.remove('is-open');
-      $('#cartDrawer').setAttribute('aria-hidden', 'true');
-      $('#drawerOverlay').classList.remove('is-active');
-      document.body.style.overflow = '';
+    close() {
+      const drawer = $('#cartDrawer'); const overlay = $('#drawerOverlay');
+      if (!drawer || !overlay || !drawer.classList.contains('is-open')) return;
+      drawer.classList.remove('is-open'); overlay.classList.remove('is-active');
+      drawer.setAttribute('aria-hidden', 'true');
+      window.setTimeout(() => { if (!overlay.classList.contains('is-active')) overlay.hidden = true; }, 320);
+      syncBodyLock(); FocusManager.close();
+    },
+    checkout() {
+      if (!this.items.length) { showToast('Tu carrito está vacío'); return; }
+      const total = formatPrice(this.total());
+      this.items = []; this.commit(); this.close();
+      showToast(`Compra simulada completada. Total: ${total}`);
     }
   };
 
-  /* =========================================================
-     4. MÓDULO: DRAWER TRIGGERS
-     ========================================================= */
-  const DrawerUI = {
-    init() {
-      $('#cartTrigger')?.addEventListener('click', () => Cart.openDrawer());
-      $('#closeCart')?.addEventListener('click', () => Cart.closeDrawer());
-      $('#drawerOverlay')?.addEventListener('click', () => {
-        Cart.closeDrawer();
-        AuthModal.close();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          Cart.closeDrawer();
-          AuthModal.close();
-        }
-      });
-    }
-  };
-
-  /* =========================================================
-     5. MÓDULO: CALCULADORA DE PRESUPUESTO
-     ========================================================= */
   const Calculator = {
     init() {
-      this.checkboxes = $$('#calcOptions input[type="checkbox"]');
-      if (!this.checkboxes.length) return;
-      this.checkboxes.forEach((cb) => cb.addEventListener('change', () => this.update()));
+      this.options = $$('#calcOptions input[type="checkbox"]');
+      if (!this.options.length) return;
+      $('#calcOptions').addEventListener('change', () => this.update());
+      $('#calcToCita')?.addEventListener('click', () => this.transfer());
       this.update();
     },
-
     update() {
-      const selected = this.checkboxes.filter((cb) => cb.checked);
-      const listEl = $('#calcSummaryList');
-      const totalEl = $('#calcTotal');
-
-      if (selected.length === 0) {
-        listEl.innerHTML = '<li class="calc-summary-empty">Aún no has marcado ninguna avería.</li>';
-        totalEl.textContent = '0 €';
-        return;
-      }
-
-      let total = 0;
-      listEl.innerHTML = selected.map((cb) => {
-        const price = parseFloat(cb.dataset.price);
-        total += price;
-        return `<li><span>${cb.dataset.label}</span><span>${price} €</span></li>`;
-      }).join('');
-
-      totalEl.textContent = total + ' €';
+      const selected = this.options.filter(option => option.checked);
+      const list = $('#calcSummaryList');
+      const total = selected.reduce((sum, option) => sum + (Number(option.dataset.price) || 0), 0);
+      if (list) list.innerHTML = selected.length ? selected.map(option => `<li><span>${escapeHTML(option.dataset.label)}</span><span>${formatPrice(option.dataset.price)}</span></li>`).join('') : '<li class="calc-summary-empty">Aún no has marcado ninguna avería.</li>';
+      if ($('#calcTotal')) $('#calcTotal').textContent = formatPrice(total);
+    },
+    transfer() {
+      const selected = this.options.filter(option => option.checked);
+      if (!selected.length) return;
+      const description = selected.map(option => `- ${option.dataset.label}`).join('\n');
+      const textarea = $('#citaDescripcion'); const service = $('#citaServicio');
+      if (textarea) textarea.value = `Averías seleccionadas:\n${description}\n\nPresupuesto estimado: ${$('#calcTotal')?.textContent || formatPrice(0)}`;
+      if (service) service.value = 'Otro / no lo sé';
     }
   };
 
-  /* =========================================================
-     6. MÓDULO: MODAL AUTH (Login / Registro)
-     ========================================================= */
   const AuthModal = {
     init() {
       $('#authTrigger')?.addEventListener('click', () => this.open());
       $('#closeAuth')?.addEventListener('click', () => this.close());
-      $('#authOverlay')?.addEventListener('click', (e) => {
-        if (e.target.id === 'authOverlay') this.close();
-      });
-
-      $$('.auth-tab').forEach((tab) => {
-        tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
-      });
-
-      $('#loginForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const feedback = $('#loginFeedback');
-        feedback.textContent = 'Iniciando sesión…';
-        setTimeout(() => {
-          feedback.textContent = '✓ Sesión iniciada correctamente (simulado).';
-          setTimeout(() => this.close(), 1200);
-        }, 700);
-      });
-
-      $('#registerForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const feedback = $('#registerFeedback');
-        feedback.textContent = 'Creando cuenta…';
-        setTimeout(() => {
-          feedback.textContent = '✓ Cuenta creada correctamente (simulado).';
-          setTimeout(() => this.close(), 1200);
-        }, 700);
-      });
+      $('#authOverlay')?.addEventListener('click', event => { if (event.target.id === 'authOverlay') this.close(); });
+      $$('.auth-tab').forEach(tab => tab.addEventListener('click', () => this.switch(tab.dataset.tab)));
+      this.bindForm('#loginForm', '#loginFeedback', 'Sesión iniciada correctamente (demostración).');
+      this.bindForm('#registerForm', '#registerFeedback', 'Cuenta creada correctamente (demostración).');
     },
-
     open() {
-      $('#authOverlay').classList.add('is-active');
-      document.body.style.overflow = 'hidden';
+      const overlay = $('#authOverlay'); const modal = $('.auth-modal', overlay);
+      if (!overlay || !modal) return;
+      overlay.hidden = false; overlay.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => overlay.classList.add('is-active'));
+      syncBodyLock(); FocusManager.open(modal);
     },
-
     close() {
-      $('#authOverlay')?.classList.remove('is-active');
-      document.body.style.overflow = Cart.items && $('#cartDrawer').classList.contains('is-open') ? 'hidden' : '';
-      $('#loginFeedback').textContent = '';
-      $('#registerFeedback').textContent = '';
+      const overlay = $('#authOverlay');
+      if (!overlay || !overlay.classList.contains('is-active')) return;
+      overlay.classList.remove('is-active'); overlay.setAttribute('aria-hidden', 'true');
+      window.setTimeout(() => { if (!overlay.classList.contains('is-active')) overlay.hidden = true; }, 280);
+      $$('.auth-feedback').forEach(element => { element.textContent = ''; });
+      syncBodyLock(); FocusManager.close();
     },
-
-    switchTab(tabName) {
-      $$('.auth-tab').forEach((t) => {
-        const active = t.dataset.tab === tabName;
-        t.classList.toggle('is-active', active);
-        t.setAttribute('aria-selected', String(active));
-      });
-      $$('.auth-form').forEach((f) => {
-        f.classList.toggle('is-active', f.dataset.panel === tabName);
-      });
-    }
-  };
-
-  /* =========================================================
-     7. MÓDULO: FORMULARIO CITA PREVIA
-     ========================================================= */
-  const CitaForm = {
-    init() {
-      const form = $('#citaForm');
-      if (!form) return;
-      form.addEventListener('submit', (e) => this.handleSubmit(e));
-
-      // Pre-selección de servicio al llegar desde la calculadora
-      $('#calcToCita')?.addEventListener('click', () => {
-        const selected = $$('#calcOptions input:checked');
-        if (selected.length > 0) {
-          const desc = selected.map((cb) => `- ${cb.dataset.label}`).join('\n');
-          const total = $('#calcTotal').textContent;
-          $('#citaDescripcion').value = `Averías detectadas en la calculadora:\n${desc}\n\nPresupuesto estimado: ${total}`;
-          $('#citaServicio').value = 'Otro / no lo sé';
-        }
-      });
+    switch(name) {
+      $$('.auth-tab').forEach(tab => { const active = tab.dataset.tab === name; tab.classList.toggle('is-active', active); tab.setAttribute('aria-selected', String(active)); tab.tabIndex = active ? 0 : -1; });
+      $$('.auth-form').forEach(form => form.classList.toggle('is-active', form.dataset.panel === name));
     },
-
-    handleSubmit(e) {
-      e.preventDefault();
-      const form = e.target;
-      const feedback = $('#citaFeedback');
-
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
-
-      const nombre = $('#citaNombre').value.trim();
-      feedback.style.color = 'var(--accent-green)';
-      feedback.textContent = 'Enviando solicitud…';
-
-      setTimeout(() => {
-        feedback.textContent = `✓ Gracias, ${nombre}. Hemos recibido tu solicitud de cita. Te contactaremos por teléfono o WhatsApp para confirmar horario.`;
-        form.reset();
-        showToast('Cita previa solicitada correctamente');
-      }, 700);
+    bindForm(formSelector, feedbackSelector, successMessage) {
+      $(formSelector)?.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        const feedback = $(feedbackSelector); const button = $('button[type="submit"]', event.currentTarget);
+        if (feedback) feedback.textContent = 'Procesando…';
+        if (button) button.disabled = true;
+        window.setTimeout(() => { if (feedback) feedback.textContent = `✓ ${successMessage}`; if (button) button.disabled = false; event.currentTarget.reset(); window.setTimeout(() => this.close(), 900); }, 600);
+      });
     }
   };
 
-  /* =========================================================
-     8. MÓDULO: NAVEGACIÓN (menú móvil + scroll header)
-     ========================================================= */
-  const Nav = {
+  const Appointment = {
+    init() { $('#citaForm')?.addEventListener('submit', event => this.submit(event)); },
+    submit(event) {
+      event.preventDefault(); const form = event.currentTarget;
+      if (!form.reportValidity()) return;
+      const feedback = $('#citaFeedback'); const button = $('button[type="submit"]', form); const name = $('#citaNombre')?.value.trim() || 'cliente';
+      if (feedback) feedback.textContent = 'Enviando solicitud…';
+      if (button) button.disabled = true;
+      window.setTimeout(() => { if (feedback) feedback.textContent = `✓ Gracias, ${name}. Hemos recibido tu solicitud y te contactaremos para confirmar el horario.`; form.reset(); if (button) button.disabled = false; showToast('Cita previa solicitada correctamente'); }, 700);
+    }
+  };
+
+  const Navigation = {
     init() {
-      const toggle = $('#navToggle');
-      const nav = $('#mainNav');
-
-      toggle?.addEventListener('click', () => {
-        const isOpen = nav.classList.toggle('is-open');
-        toggle.setAttribute('aria-expanded', String(isOpen));
-      });
-
-      $$('.nav-link').forEach((link) => {
-        link.addEventListener('click', () => {
-          nav.classList.remove('is-open');
-          toggle?.setAttribute('aria-expanded', 'false');
-        });
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!nav.classList.contains('is-open')) return;
-        if (!nav.contains(e.target) && !toggle.contains(e.target)) {
-          nav.classList.remove('is-open');
-          toggle.setAttribute('aria-expanded', 'false');
-        }
-      });
-    }
+      const toggle = $('#navToggle'); const nav = $('#mainNav');
+      toggle?.addEventListener('click', () => { const open = nav.classList.toggle('is-open'); toggle.setAttribute('aria-expanded', String(open)); });
+      nav?.addEventListener('click', event => { if (event.target.closest('.nav-link')) this.close(nav, toggle); });
+      document.addEventListener('click', event => { if (nav?.classList.contains('is-open') && !nav.contains(event.target) && !toggle?.contains(event.target)) this.close(nav, toggle); });
+    },
+    close(nav, toggle) { nav?.classList.remove('is-open'); toggle?.setAttribute('aria-expanded', 'false'); }
   };
 
-  /* =========================================================
-     9. INICIALIZACIÓN GLOBAL
-     ========================================================= */
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { AuthModal.close(); Cart.close(); }
+    const openContainer = $('#authOverlay.is-active .auth-modal') || $('#cartDrawer.is-open');
+    FocusManager.trap(event, openContainer);
+  });
+
   document.addEventListener('DOMContentLoaded', () => {
-    Shop.init();
-    Cart.init();
-    DrawerUI.init();
-    Calculator.init();
-    AuthModal.init();
-    CitaForm.init();
-    Nav.init();
-
-    const yearEl = $('#year');
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
+    Shop.init(); Cart.init(); Calculator.init(); AuthModal.init(); Appointment.init(); Navigation.init();
+    if ($('#year')) $('#year').textContent = String(new Date().getFullYear());
   });
 })();

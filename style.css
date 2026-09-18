@@ -26,14 +26,15 @@
   --radius-lg: 22px;
 
   --shadow-card: 0 10px 30px -12px rgba(0, 0, 0, 0.55);
-  --header-h: 72px;
+  --header-h: 84px;
+  --content-max: 1180px;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ---------- 2. Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 16px); overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -41,6 +42,9 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: clip;
   background: var(--bg-dark);
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -64,7 +68,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
 
 .container {
   width: 100%;
-  max-width: 1180px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -688,7 +692,7 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
 }
 .drawer-header h3 { font-size: 1.1rem; }
 
-.drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.drawer-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px 24px; }
 
 .cart-empty {
   display: flex;
@@ -887,4 +891,49 @@ input, select, textarea { font-family: inherit; font-size: 1rem; }
   .hero { padding: 56px 0 64px; }
   .whatsapp-float { width: 52px; height: 52px; bottom: 18px; right: 18px; }
   .cart-drawer { width: 100%; }
+}
+
+
+/* ---------- 17. Production hardening and accessibility ---------- */
+[hidden] { display: none !important; }
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+body.is-locked { overflow: hidden; touch-action: none; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+.product-card, .service-card, .calc-item, .cita-form { min-width: 0; }
+.product-body h3, .cart-item-info h4 { overflow-wrap: anywhere; }
+.cart-item-info { min-width: 0; }
+.drawer-footer { padding-bottom: max(26px, env(safe-area-inset-bottom)); }
+.whatsapp-float { bottom: max(24px, env(safe-area-inset-bottom)); }
+
+@media (max-width: 760px) {
+  :root { --header-h: 76px; }
+  .header-inner { gap: 10px; }
+  .brand-logo-wrap { width: 92px; height: 58px; }
+  .header-actions { gap: 8px; }
+  .main-nav { max-height: calc(100dvh - var(--header-h)); overflow-y: auto; }
+}
+
+@media (max-width: 480px) {
+  .container { padding-inline: 16px; }
+  .hero-actions > * { width: 100%; }
+  .hero-stats { display: grid; grid-template-columns: 1fr 1fr; }
+  .products-grid, .services-grid { grid-template-columns: minmax(0, 1fr); }
+  .product-footer { align-items: flex-end; gap: 12px; }
+  .calc-item { align-items: flex-start; flex-wrap: wrap; }
+  .calc-text { min-width: calc(100% - 40px); }
+  .calc-amount { margin-left: 36px; }
+  .cart-item { grid-template-columns: 48px minmax(0, 1fr); align-items: start; }
+  .cart-item-media { width: 48px; height: 48px; }
+  .cart-item-actions { grid-column: 2; flex-direction: row; justify-content: space-between; align-items: center; }
+  .toast { left: 16px; right: 16px; bottom: 84px; text-align: center; }
 }
