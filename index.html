@@ -14,6 +14,8 @@
 <script src="app.js" defer></script>
 </head>
 <body>
+<div class="ambient ambient-one" aria-hidden="true"></div>
+<div class="ambient ambient-two" aria-hidden="true"></div>
 
 <!-- ============ HEADER ============ -->
 <header class="site-header" id="siteHeader">
@@ -54,9 +56,9 @@
     <div class="hero-grid" aria-hidden="true"></div>
     <div class="container hero-inner">
       <div class="hero-copy">
-        <p class="hero-eyebrow">Taller técnico · Sevilla</p>
-        <h1 class="hero-title">Scooter Fix: taller y repuestos de patinetes eléctricos en Sevilla</h1>
-        <p class="hero-sub">Diagnóstico electrónico, mecánica de precisión y piezas compatibles con las marcas más usadas de la ciudad. Presupuesto claro antes de tocar un tornillo.</p>
+        <p class="hero-eyebrow"><span></span> Taller técnico especializado · Sevilla</p>
+        <h1 class="hero-title">Tu patinete vuelve a la calle <span>mejor que antes.</span></h1>
+        <p class="hero-sub">Mecánica de precisión, diagnóstico electrónico y repuestos seleccionados. Te explicamos la avería, acordamos el presupuesto y cuidamos cada detalle.</p>
         <div class="hero-actions">
           <a href="#cita" class="btn btn-primary btn-lg">Solicitar diagnóstico</a>
           <a href="https://wa.me/34600000000" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp btn-lg">
@@ -72,22 +74,22 @@
       </div>
 
       <div class="hero-visual" aria-hidden="true">
-        <svg viewBox="0 0 380 380" class="scooter-diagram">
-          <circle cx="190" cy="190" r="170" class="ring ring-outer"/>
-          <circle cx="190" cy="190" r="130" class="ring ring-inner"/>
-          <g class="scooter-svg" stroke="#38bdf8" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="90" y1="290" x2="90" y2="120"/>
-            <line x1="90" y1="120" x2="150" y2="90"/>
-            <path d="M90 130 L230 130 L260 240" />
-            <circle cx="90" cy="290" r="26" stroke="#0284c7"/>
-            <circle cx="260" cy="290" r="26" stroke="#0284c7"/>
-            <line x1="230" y1="130" x2="260" y2="264"/>
-            <line x1="70" y1="290" x2="286" y2="290"/>
-          </g>
-          <circle cx="90" cy="120" r="6" fill="#22c55e"/>
-        </svg>
-        <span class="pulse-dot dot-1"></span>
-        <span class="pulse-dot dot-2"></span>
+        <div class="hero-media-card">
+          <div class="hero-media-overlay"></div>
+          <div class="hero-media-grid"></div>
+          <svg viewBox="0 0 380 380" class="scooter-diagram">
+            <circle cx="190" cy="190" r="170" class="ring ring-outer"/>
+            <circle cx="190" cy="190" r="130" class="ring ring-inner"/>
+            <g class="scooter-svg" stroke="#38bdf8" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="90" y1="290" x2="90" y2="120"/><line x1="90" y1="120" x2="150" y2="90"/>
+              <path d="M90 130 L230 130 L260 240"/><circle cx="90" cy="290" r="26" stroke="#0284c7"/>
+              <circle cx="260" cy="290" r="26" stroke="#0284c7"/><line x1="230" y1="130" x2="260" y2="264"/>
+              <line x1="70" y1="290" x2="286" y2="290"/>
+            </g>
+          </svg>
+          <div class="diagnostic-pill"><span class="status-dot"></span><div><small>Diagnóstico</small><strong>Equipo listo</strong></div></div>
+          <div class="hero-badge"><strong>24–48h</strong><span>entrega media</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -100,6 +102,7 @@
         <p>Diagnóstico honesto y reparación especializada, sea cual sea la marca de tu patinete.</p>
       </div>
 
+      <div class="section-kicker">Ingeniería, oficio y transparencia</div>
       <div class="services-grid">
         <article class="service-card">
           <div class="service-icon">🔧</div>
@@ -146,6 +149,16 @@
     </div>
   </section>
 
+  <section class="process-band" aria-label="Proceso de reparación">
+    <div class="container process-grid">
+      <div class="process-intro"><span class="section-kicker">Así trabajamos</span><h2>Sin sorpresas. Sin letra pequeña.</h2></div>
+      <ol class="process-steps">
+        <li><span>01</span><div><strong>Escuchamos</strong><small>Cuéntanos qué ocurre.</small></div></li>
+        <li><span>02</span><div><strong>Diagnosticamos</strong><small>Revisamos antes de actuar.</small></div></li>
+        <li><span>03</span><div><strong>Reparamos</strong><small>Solo con tu aprobación.</small></div></li>
+      </ol>
+    </div>
+  </section>
   <!-- ============ TIENDA ============ -->
   <section class="section section-alt" id="tienda">
     <div class="container">
@@ -312,6 +325,12 @@
     </div>
   </section>
 
+  <section class="final-cta">
+    <div class="container final-cta-card">
+      <div><span class="section-kicker">¿Tu patinete pide taller?</span><h2>Lo ponemos a punto.</h2><p>Solicita una revisión y te contactamos para confirmar disponibilidad.</p></div>
+      <a href="#cita" class="btn btn-primary btn-lg">Reservar diagnóstico <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
 </main>
 
 <!-- ============ FOOTER ============ -->
